@@ -1,5 +1,6 @@
 import "server-only";
 import { createHash, scryptSync, timingSafeEqual } from "node:crypto";
+import { envValue } from "./env-value";
 
 /**
  * Contraseñas. Cada persona puede tener la suya en data/equipo.json ("clave");
@@ -7,7 +8,13 @@ import { createHash, scryptSync, timingSafeEqual } from "node:crypto";
  *   LOGIN_PASSWORD_HASH=scrypt:<salt>:<hash>   (generarlo con `npm run password -- '<clave>'`)
  */
 export function passwordConfigured(own?: string) {
-  return Boolean(own || process.env.LOGIN_PASSWORD_HASH);
+  return Boolean(own || envValue("LOGIN_PASSWORD_HASH"));
+}
+
+/** Si la clave compartida tiene forma válida (para /api/estado; no dice cuál es). */
+export function sharedHashLooksValid() {
+  const [algo, salt, hash] = envValue("LOGIN_PASSWORD_HASH").split(":");
+  return algo === "scrypt" && Boolean(salt) && Buffer.from(hash ?? "", "base64url").length === 32;
 }
 
 function matchesHash(password: string, stored: string) {
@@ -27,7 +34,7 @@ export function checkPassword(password: string, own?: string): boolean {
     const b = createHash("sha256").update(own).digest();
     return timingSafeEqual(a, b);
   }
-  return matchesHash(password, process.env.LOGIN_PASSWORD_HASH ?? "");
+  return matchesHash(password, envValue("LOGIN_PASSWORD_HASH"));
 }
 
 // ── Límite de intentos (en memoria: alcanza para un solo servidor) ─────────

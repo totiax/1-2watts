@@ -1,12 +1,13 @@
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { envValue } from "./env-value";
 
 const COOKIE = "mw_session";
 const MAX_AGE_DAYS = 30;
 
 function key() {
-  const secret = process.env.SESSION_SECRET;
+  const secret = envValue("SESSION_SECRET");
   if (!secret || secret.length < 32) {
     throw new Error("Falta SESSION_SECRET (mínimo 32 caracteres). Ver .env.example");
   }

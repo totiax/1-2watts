@@ -2,6 +2,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { envValue } from "./env-value";
 
 /** Una persona del equipo. */
 export type Member = {
@@ -60,7 +61,7 @@ function normalize(members: Member[]): Member[] {
 
 /** De dónde sale el equipo, en orden: EQUIPO_JSON, data/equipo.json, data/roster.json (People) o el ejemplo. */
 function source(): { key: string; load: () => Member[] } {
-  const env = process.env.EQUIPO_JSON;
+  const env = envValue("EQUIPO_JSON");
   if (env) return { key: `env:${env.length}`, load: () => fromEquipo(JSON.parse(env)) };
   for (const [file, parse] of [
     [EQUIPO, (raw: string) => fromEquipo(JSON.parse(raw))],
@@ -88,7 +89,15 @@ export function getRoster(): Member[] {
 }
 
 export function usingExampleRoster() {
-  return !process.env.EQUIPO_JSON && !existsSync(EQUIPO) && !existsSync(ROSTER);
+  return !envValue("EQUIPO_JSON") && !existsSync(EQUIPO) && !existsSync(ROSTER);
+}
+
+/** De dónde sale el equipo, para /api/estado (sin mails). */
+export function rosterSource(): "EQUIPO_JSON" | "equipo.json" | "roster.json" | "ejemplo" | "ninguno" {
+  if (envValue("EQUIPO_JSON")) return "EQUIPO_JSON";
+  if (existsSync(EQUIPO)) return "equipo.json";
+  if (existsSync(ROSTER)) return "roster.json";
+  return existsSync(EXAMPLE) ? "ejemplo" : "ninguno";
 }
 
 export function findMemberByEmail(email: string): Member | undefined {
