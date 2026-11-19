@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Battery } from "@/components/battery";
-import { requireMember } from "@/lib/auth";
+import { loginRequired, requireMember } from "@/lib/auth";
 import { AWARDS, YEAR_AWARDS } from "@/lib/awards";
 import { answersOf, photosOf, votesOf } from "@/lib/db";
 import { eventDate, formatDay, progressOf, stageOf } from "@/lib/event";
@@ -27,7 +27,8 @@ export default function CargarPage() {
 async function Content() {
   const member = await requireMember();
   // Esta pantalla se ve una sola vez: solo mientras la carga está abierta y no enchufaste.
-  if (stageOf(member.id) !== "carga") redirect("/inicio");
+  // Sin login queda abierta para ver el diseño.
+  if (loginRequired() && stageOf(member.id) !== "carga") redirect("/inicio");
   const progress = progressOf(member.id);
   const closes = formatDay(eventDate());
   const byKind = Object.fromEntries(photosOf(member.id).map((p) => [p.kind, p.id]));

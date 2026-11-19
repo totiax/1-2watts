@@ -7,7 +7,7 @@ import { HangingW } from "@/components/hanging-w";
 import { InlineScript } from "@/components/inline-script";
 import { MusicSelect } from "@/components/music-select";
 import { PhotoColumns } from "@/components/photo-columns";
-import { requireMember } from "@/lib/auth";
+import { isGuest, loginRequired, requireMember } from "@/lib/auth";
 import { db, submittedIds, type PhotoRow } from "@/lib/db";
 import { eventDate, formatDay, stageOf, uploadOpensAt } from "@/lib/event";
 import { LOBBY_INTRO_BOOT_SCRIPT } from "@/lib/intro";
@@ -34,7 +34,8 @@ export default function InicioPage() {
 
 async function Content() {
   const member = await requireMember();
-  const stage = stageOf(member.id);
+  // Sin login, el dashboard se ve siempre (la lógica de etapas vuelve con LOGIN=on).
+  const stage = loginRequired() ? stageOf(member.id) : "listo";
   // Sin fotos, respuestas y votos no se entra: la carga es la puerta.
   if (stage === "carga") redirect("/cargar");
   if (stage === "antes") {
@@ -53,8 +54,10 @@ async function Content() {
     );
   }
 
-  const done = submittedIds();
   const roster = getRoster();
+  const inRoster = new Set(roster.map((m) => m.id));
+  // Solo cuenta el equipo: lo que cargue un visitante no prende la batería.
+  const done = new Set([...submittedIds()].filter((id) => inRoster.has(id)));
   const level = roster.length ? (done.size / roster.length) * 100 : 0;
 
   // Las fotos de mascota, fiesta y viaje de quienes enchufaron (el escrache no).
@@ -104,9 +107,11 @@ async function Content() {
           <Link href="/" className="font-display text-2xl font-extrabold">
             <span className="text-volt">½</span> watts
           </Link>
-          <form action="/api/auth/logout" method="post">
-            <button className="font-mono text-xs uppercase tracking-widest text-muted hover:text-paper">Salir</button>
-          </form>
+          {!isGuest(member) && (
+            <form action="/api/auth/logout" method="post">
+              <button className="font-mono text-xs uppercase tracking-widest text-muted hover:text-paper">Salir</button>
+            </form>
+          )}
         </nav>
 
         <header className="flex flex-col items-center gap-5 text-center">
@@ -117,8 +122,9 @@ async function Content() {
             <span className="text-volt">½</span> <HangingW />atts
           </h1>
           <p data-in="head" className="max-w-md text-paper/80">
-            Hola, <strong className="text-paper">{displayName(member)}</strong>. Ya enchufaste. En la fiesta va el
-            video, el juego en el proyector (tené el celu a mano) y al final, los premios.
+            Hola, <strong className="text-paper">{displayName(member)}</strong>.{" "}
+            {done.has(member.id) ? "Ya enchufaste. " : ""}En la fiesta va el video, el juego en el proyector (tené el
+            celu a mano) y al final, los premios.
           </p>
           <div data-in="head" className="pointer-events-auto">
             <Countdown target={party.toISOString()} />

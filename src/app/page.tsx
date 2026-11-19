@@ -4,7 +4,7 @@ import { InlineScript } from "@/components/inline-script";
 import { HangingW } from "@/components/hanging-w";
 import { Intro } from "@/components/intro";
 import { MusicSelect } from "@/components/music-select";
-import { getCurrentMember } from "@/lib/auth";
+import { getCurrentMember, isGuest } from "@/lib/auth";
 import { INTRO_BOOT_SCRIPT } from "@/lib/intro";
 import { isConfigured } from "@/lib/oauth";
 import { displayName } from "@/lib/roster";
@@ -48,9 +48,11 @@ async function Access({ searchParams }: { searchParams: PageProps<"/">["searchPa
   if (member) {
     return (
       <section className="flex flex-col items-center gap-4">
-        <p className="text-xl">
-          Hola, <strong className="text-volt">{displayName(member)}</strong>.
-        </p>
+        {!isGuest(member) && (
+          <p className="text-xl">
+            Hola, <strong className="text-volt">{displayName(member)}</strong>.
+          </p>
+        )}
         <Link
           href="/inicio"
           className="inline-flex h-12 items-center justify-center rounded-full bg-volt px-7 font-bold text-ink transition-transform hover:-translate-y-0.5"
