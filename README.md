@@ -43,6 +43,7 @@ El id de cada persona sale de su mail, así que cambiar de archivo no pierde lo 
 ## Login
 
 - **Mail + contraseña:** la propia de `equipo.json` o la compartida del equipo. De la compartida, en `.env.local` va solo el hash: `npm run password -- 'la-clave'` imprime la línea `LOGIN_PASSWORD_HASH=…`. Tiene límite de intentos.
+- **Para desarrollo:** copiá `.env.example` a `.env.local` (y completá `SESSION_SECRET`); ya trae el hash de la contraseña de prueba `Test1234!`. Cambiala antes de publicar la app.
 - **Google** (OAuth con PKCE vía `arctic`): el mail tiene que estar en el roster. Callback: `${APP_URL}/api/auth/google/callback`.
 - En `next dev` hay un atajo sin botón: `/api/auth/dev?email=…`.
 

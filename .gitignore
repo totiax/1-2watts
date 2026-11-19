@@ -45,3 +45,4 @@ next-env.d.ts
 /data/roster.json
 /data/equipo.json
 /storage/
+/data/clave-equipo.txt
