@@ -43,4 +43,5 @@ next-env.d.ts
 
 # medio-watts: datos reales del equipo y fotos subidas, nunca al repo
 /data/roster.json
+/data/equipo.json
 /storage/

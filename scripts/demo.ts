@@ -14,6 +14,7 @@ import { randomUUID } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { migrate } from "../src/lib/schema";
+import { memberIdFor } from "./member-id";
 
 type Member = { id: string; emails: string[]; firstName: string; nickname: string | null };
 
@@ -22,10 +23,18 @@ const STORAGE = path.join(ROOT, "storage");
 const UPLOADS = path.join(STORAGE, "uploads");
 const SRC = path.join(STORAGE, "demo", "pexels");
 
-const rosterFile = existsSync(path.join(ROOT, "data/roster.json"))
-  ? path.join(ROOT, "data/roster.json")
-  : path.join(ROOT, "data/roster.example.json");
-const roster = JSON.parse(readFileSync(rosterFile, "utf8")) as Member[];
+// El mismo orden que la app: data/equipo.json, data/roster.json o el ejemplo.
+type EquipoEntry = { email: string | string[]; nombre: string; apodo?: string | null };
+const fromEquipo = (file: string): Member[] =>
+  (JSON.parse(readFileSync(file, "utf8")) as EquipoEntry[]).map((e) => {
+    const emails = (Array.isArray(e.email) ? e.email : [e.email]).map((m) => m.trim().toLowerCase());
+    return { id: memberIdFor(emails[0]), emails, firstName: e.nombre, nickname: e.apodo ?? null };
+  });
+const roster: Member[] = existsSync(path.join(ROOT, "data/equipo.json"))
+  ? fromEquipo(path.join(ROOT, "data/equipo.json"))
+  : existsSync(path.join(ROOT, "data/roster.json"))
+    ? (JSON.parse(readFileSync(path.join(ROOT, "data/roster.json"), "utf8")) as Member[])
+    : fromEquipo(path.join(ROOT, "data/equipo.example.json"));
 
 mkdirSync(UPLOADS, { recursive: true });
 const db = new Database(path.join(STORAGE, "medio-watts.db"));

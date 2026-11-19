@@ -1,0 +1,24 @@
+[
+  {
+    "email": "ana.prueba@25watts.com.ar",
+    "nombre": "Ana",
+    "apellido": "Prueba",
+    "apodo": "La Jefa del Deploy"
+  },
+  {
+    "email": "beto.ejemplo@25watts.com.ar",
+    "nombre": "Beto",
+    "apellido": "Ejemplo",
+    "apodo": null,
+    "clave": "una-clave-propia"
+  },
+  {
+    "email": [
+      "caro.demo@25watts.com.ar",
+      "caro@gmail.com"
+    ],
+    "nombre": "Caro",
+    "apellido": "Demo",
+    "apodo": "Caro CSS"
+  }
+]

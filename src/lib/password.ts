@@ -1,21 +1,33 @@
 import "server-only";
-import { scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, scryptSync, timingSafeEqual } from "node:crypto";
 
 /**
- * Contraseña compartida del equipo. En .env.local va solo el hash:
+ * Contraseñas. Cada persona puede tener la suya en data/equipo.json ("clave");
+ * si no tiene, usa la compartida del equipo, que en .env.local va solo como hash:
  *   LOGIN_PASSWORD_HASH=scrypt:<salt>:<hash>   (generarlo con `npm run password -- '<clave>'`)
  */
-export function passwordConfigured() {
-  return Boolean(process.env.LOGIN_PASSWORD_HASH);
+export function passwordConfigured(own?: string) {
+  return Boolean(own || process.env.LOGIN_PASSWORD_HASH);
 }
 
-export function checkPassword(password: string): boolean {
-  const stored = process.env.LOGIN_PASSWORD_HASH ?? "";
+function matchesHash(password: string, stored: string) {
   const [algo, salt, hash] = stored.split(":");
   if (algo !== "scrypt" || !salt || !hash) return false;
   const expected = Buffer.from(hash, "base64url");
   const actual = scryptSync(password, salt, expected.length);
   return timingSafeEqual(actual, expected);
+}
+
+/** `own` es la clave propia de la persona (en claro o "scrypt:…"), si tiene. */
+export function checkPassword(password: string, own?: string): boolean {
+  if (own) {
+    if (own.startsWith("scrypt:")) return matchesHash(password, own);
+    // Clave en claro: se compara hasheando las dos para no filtrar el largo por tiempos.
+    const a = createHash("sha256").update(password).digest();
+    const b = createHash("sha256").update(own).digest();
+    return timingSafeEqual(a, b);
+  }
+  return matchesHash(password, process.env.LOGIN_PASSWORD_HASH ?? "");
 }
 
 // ── Límite de intentos (en memoria: alcanza para un solo servidor) ─────────

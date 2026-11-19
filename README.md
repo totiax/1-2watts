@@ -15,18 +15,34 @@ npm run dev
 
 ## Quién puede entrar
 
-Solo el área **Tecnología** de People. El roster va en `data/roster.json` (no se commitea):
+Entra quien esté en **`data/equipo.json`** (no se commitea). Se edita a mano y se relee solo, sin reiniciar:
+
+```json
+[
+  { "email": "ana.perez@25watts.com.ar", "nombre": "Ana", "apellido": "Pérez", "apodo": "La Jefa del Deploy" },
+  { "email": "beto.gomez@25watts.com.ar", "nombre": "Beto", "apellido": "Gómez", "apodo": null, "clave": "su-clave" }
+]
+```
+
+- `email` puede ser una lista si alguien entra con más de un mail.
+- `apodo` es lo que se muestra en la app (si no hay, el nombre).
+- `clave` es opcional: si no está, usa la contraseña compartida del equipo. Puede ir en claro o como hash (`npm run password -- 'la-clave'` y copiar lo que va después de `LOGIN_PASSWORD_HASH=`).
+- Sacar a alguien del JSON lo deja afuera al toque, aunque tenga la sesión abierta.
+
+Ver `data/equipo.example.json`. En un servidor sin archivos se puede pasar el mismo JSON en la variable `EQUIPO_JSON`.
+
+Si no hay `equipo.json`, usa `data/roster.json` exportado de People:
 
 ```bash
 npm run roster:seed -- ../people/backend-people/prisma/seed.ts "Tecnología"   # desde el seed
 PEOPLE_DATABASE_URL=postgres://… npm run roster -- "Tecnología"               # desde la base
 ```
 
-El id de cada persona sale de su mail, así que regenerar el roster no pierde lo cargado.
+El id de cada persona sale de su mail, así que cambiar de archivo no pierde lo cargado.
 
 ## Login
 
-- **Mail + contraseña compartida del equipo.** En `.env.local` va solo el hash: `npm run password -- 'la-clave'` imprime la línea `LOGIN_PASSWORD_HASH=…`. Tiene límite de intentos.
+- **Mail + contraseña:** la propia de `equipo.json` o la compartida del equipo. De la compartida, en `.env.local` va solo el hash: `npm run password -- 'la-clave'` imprime la línea `LOGIN_PASSWORD_HASH=…`. Tiene límite de intentos.
 - **Google** (OAuth con PKCE vía `arctic`): el mail tiene que estar en el roster. Callback: `${APP_URL}/api/auth/google/callback`.
 - En `next dev` hay un atajo sin botón: `/api/auth/dev?email=…`.
 
