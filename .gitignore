@@ -46,3 +46,4 @@ next-env.d.ts
 /data/equipo.json
 /storage/
 /data/clave-equipo.txt
+/data/vercel-env.txt

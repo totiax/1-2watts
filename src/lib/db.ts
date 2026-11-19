@@ -5,7 +5,12 @@ import path from "node:path";
 import type { PhotoKind } from "./questions";
 import { migrate } from "./schema";
 
-export const STORAGE_DIR = path.join(process.cwd(), "storage");
+/**
+ * Base y fotos. En Vercel el disco es de solo lectura salvo /tmp, que se borra
+ * seguido: alcanza para ver el desarrollo, no para el evento real.
+ */
+export const STORAGE_DIR =
+  process.env.STORAGE_DIR || (process.env.VERCEL ? "/tmp/medio-watts" : path.join(process.cwd(), "storage"));
 export const UPLOADS_DIR = path.join(STORAGE_DIR, "uploads");
 
 type G = typeof globalThis & { __mwDb?: Database.Database };

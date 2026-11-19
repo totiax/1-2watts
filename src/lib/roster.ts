@@ -67,8 +67,12 @@ function source(): { key: string; load: () => Member[] } {
     [ROSTER, (raw: string) => normalize(JSON.parse(raw))],
     [EXAMPLE, (raw: string) => fromEquipo(JSON.parse(raw))],
   ] as const) {
-    if (existsSync(file)) {
-      return { key: `${file}:${statSync(file).mtimeMs}`, load: () => parse(readFileSync(file, "utf8")) };
+    // Los archivos del equipo se leen en runtime: que Turbopack no rastree todo el proyecto por esto.
+    if (existsSync(/*turbopackIgnore: true*/ file)) {
+      return {
+        key: `${file}:${statSync(/*turbopackIgnore: true*/ file).mtimeMs}`,
+        load: () => parse(readFileSync(/*turbopackIgnore: true*/ file, "utf8")),
+      };
     }
   }
   return { key: "vacío", load: () => [] };
