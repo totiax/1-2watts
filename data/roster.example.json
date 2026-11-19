@@ -1,0 +1,5 @@
+[
+  { "id": "demo-1", "emails": ["ana@25watts.com.ar"], "firstName": "Ana", "lastName": "Prueba", "nickname": "La Jefa del Deploy" },
+  { "id": "demo-2", "emails": ["beto@25watts.com.ar"], "firstName": "Beto", "lastName": "Ejemplo", "nickname": null },
+  { "id": "demo-3", "emails": ["caro@25watts.com.ar"], "firstName": "Caro", "lastName": "Demo", "nickname": "Caro CSS" }
+]

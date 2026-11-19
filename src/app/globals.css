@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0d0d0c;
+  --ink-2: #171715;
+  --line: #2a2a26;
+  --paper: #f3f0e6;
+  --muted: #9b978a;
+  --volt: #d7ff3a;
+  --volt-dim: #8aa61f;
+  --warn: #ff6b4a;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-line: var(--line);
+  --color-paper: var(--paper);
+  --color-muted: var(--muted);
+  --color-volt: var(--volt);
+  --color-volt-dim: var(--volt-dim);
+  --color-warn: var(--warn);
+  --font-display: var(--font-bricolage);
+  --font-mono: var(--font-jetbrains);
+  --font-hand: var(--font-caveat);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--volt);
+  color: var(--ink);
+}
+
+/* La intro ya se vio en esta sesión: ni se pinta (ver INTRO_BOOT_SCRIPT). */
+html[data-intro="seen"] #mw-intro {
+  display: none;
+}
+
+.w-hang {
+  /* La w de "watts" cuelga del tornillo del lado de la "a" (igual que al final de la intro).
+     El balanceo al pasar el mouse lo hace GSAP en components/hanging-w.tsx. */
+  display: inline-block;
+  transform-origin: 92% 10%;
+  transform: rotate(-35deg);
+  margin-right: 0.3em;
+}
+
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 3px;
+}
+
+/* Fondo de la sala de espera (components/photo-columns.tsx). */
+@keyframes column-up {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.photo-column {
+  animation: column-up 80s linear infinite;
+}
+.photo-column-down {
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .photo-column { animation: none; }
+}
